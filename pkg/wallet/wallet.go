@@ -65,3 +65,15 @@ func (w *Wallet) GetAddress() string {
 	address := base58.Encode(fullPayload)
 	return address
 }
+
+// 解码钱包地址，得到公钥哈希
+func GetPubKeyHashFromAddress(address string) []byte {
+	fullPayload := base58.Decode(address)
+	payload := fullPayload[:len(fullPayload)-4] // remove checksum
+	version := payload[0]
+	if version != 0x00 {
+		panic("Unsupported address version")
+	}
+	pubKeyHash := payload[1:]
+	return pubKeyHash
+}
