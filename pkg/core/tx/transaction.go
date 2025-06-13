@@ -2,9 +2,11 @@ package tx
 
 import (
 	"bytes"
+	"crypto/ecdsa"
 	"crypto/sha256"
 	"encoding/gob"
 	"fmt"
+	"math/big"
 
 	"accountbook/pkg/core/wallet"
 )
@@ -79,4 +81,34 @@ func (tx *Transaction) PrintDetails() {
 		fmt.Printf("  Value: %d\n", out.Value)
 		fmt.Printf("  PubKeyHash: %x\n", out.PubKeyHash)
 	}
+}
+
+// 验证交易签名
+func (t *Transaction) VerifyTransaction() bool {
+	if t.IsCoinbase() {
+		return true
+	}
+	for _, vin := range t.Inputs {
+		// 解析签名
+		if len(vin.Signature) == 0 || len(vin.PubKey) == 0 {
+			return false
+		}
+		r := big.Int{}
+		s := big.Int{}
+		sigLen := len(vin.Signature)
+		r.SetBytes(vin.Signature[:sigLen/2])
+		s.SetBytes(vin.Signature[sigLen/2:])
+		x := big.Int{}
+		y := big.Int{}
+		keyLen := len(vin.PubKey)
+		x.SetBytes(vin.PubKey[:keyLen/2])
+		y.SetBytes(vin.PubKey[keyLen/2:])
+		rawPubKey := ecdsa.PublicKey{Curve: wallet.Curve(), X: &x, Y: &y}
+		// 签名内容为PubKeyHash+TxID
+		dataHash := sha256.Sum256(append(wallet.HashPubKey(vin.PubKey), t.ID...))
+		if !ecdsa.Verify(&rawPubKey, dataHash[:], &r, &s) {
+			return false
+		}
+	}
+	return true
 }

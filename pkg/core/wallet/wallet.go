@@ -66,6 +66,11 @@ func (w *Wallet) GetAddress() string {
 	return address
 }
 
+// 返回所使用的曲线，用于验证签名
+func Curve() elliptic.Curve {
+	return elliptic.P256()
+}
+
 // 解码钱包地址，得到公钥哈希
 func GetPubKeyHashFromAddress(address string) []byte {
 	fullPayload := base58.Decode(address)
