@@ -19,6 +19,8 @@ type Block struct {
 	Timestamp uint32
 	Bits      [4]byte
 	Nounce    uint32
+
+	Transactions []*tx.Transaction
 }
 
 func NewBlock(previousHash [32]byte, transactions []*tx.Transaction, bits ...[4]byte) Block {
@@ -36,6 +38,8 @@ func NewBlock(previousHash [32]byte, transactions []*tx.Transaction, bits ...[4]
 		newBlock.Bits = [4]byte{0x1f, 0x00, 0xff, 0xff}
 	}
 	newBlock.Nounce = 0
+
+	newBlock.Transactions = transactions
 
 	return newBlock
 }
@@ -55,7 +59,7 @@ func (block *Block) CalculateHash() [32]byte {
 }
 
 // 将bits转换为难度目标值Target
-func bitsToTarget(bits [4]byte) [32]byte {
+func BitsToTarget(bits [4]byte) [32]byte {
 	// 从bits提取系数和指数
 	exponent := bits[0]
 	coefficient := binary.BigEndian.Uint32(bits[:]) & 0x00ffffff
@@ -69,7 +73,7 @@ func bitsToTarget(bits [4]byte) [32]byte {
 }
 
 func (block *Block) MineBlock() [32]byte {
-	target := bitsToTarget(block.Bits)
+	target := BitsToTarget(block.Bits)
 
 	// bytes.Compare(target1, target2)用于比较字典序
 	// 若 target1<target2 返回-1，否则返回1

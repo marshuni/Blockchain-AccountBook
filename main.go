@@ -1,6 +1,7 @@
 package main
 
 import (
+	"accountbook/pkg/blockchain"
 	"accountbook/pkg/core/merkle"
 	"accountbook/pkg/core/pow"
 	"accountbook/pkg/core/tx"
@@ -35,5 +36,15 @@ func main() {
 	}
 	myBlock := pow.NewBlock(previousHash, []*tx.Transaction{myCoinbase, myCoinbase})
 	fmt.Println("---------\n打包区块并挖矿：")
+	fmt.Printf("当前难度值: %x\n", pow.BitsToTarget(myBlock.Bits))
 	fmt.Printf("Block mined: %x\n", myBlock.MineBlock())
+
+	// 区块链
+	myChain := blockchain.NewBlockchain()
+	myPool := blockchain.TxPool{}
+
+	myPool.AddTx(myCoinbase)
+	myChain.AddBlock(&myPool, myWallet.GetAddress())
+	fmt.Println("---------\n区块链测试：")
+	myChain.Print()
 }
