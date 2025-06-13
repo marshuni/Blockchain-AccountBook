@@ -3,6 +3,8 @@ package main
 import (
 	"accountbook/pkg/tx"
 	"accountbook/pkg/wallet"
+
+	"accountbook/pkg/merkle"
 	"fmt"
 )
 
@@ -18,4 +20,7 @@ func main() {
 	myCoinbase := tx.NewCoinbaseTX(myAddress, "")
 	fmt.Println("---------\n创建一个Coinbase交易：")
 	myCoinbase.PrintDetails()
+
+	// 验证Merkle树可用性
+	merkle.CreateTree([]tx.Transaction{*myCoinbase, *myCoinbase})
 }
