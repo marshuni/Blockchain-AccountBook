@@ -42,10 +42,11 @@ func (bc *Blockchain) AddBlock(p *TxPool, minerAddress string) {
 	if transactions == nil {
 		return // 如果没有交易，则不创建新的区块
 	}
-
-	// 添加Coinbase块
-	coinbaseTx := tx.NewCoinbaseTX(minerAddress, "")
-	transactions = append([]*tx.Transaction{coinbaseTx}, transactions...)
+	if minerAddress != "" {
+		// 添加Coinbase块
+		coinbaseTx := tx.NewCoinbaseTX(minerAddress, "")
+		transactions = append([]*tx.Transaction{coinbaseTx}, transactions...)
+	}
 
 	// 获取前一个区块的哈希值
 	var previousHash [32]byte
