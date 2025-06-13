@@ -48,7 +48,7 @@ func NewCoinbaseTX(to, data string) *Transaction {
 	if data == "" {
 		data = fmt.Sprintf("Reward to '%s'", to)
 	}
-	txin := TXInput{[]byte{}, -1, nil, []byte(data)}
+	txin := TXInput{[]byte{}, -1, []byte{}, []byte(data)}
 	txout := TXOutput{100, wallet.GetPubKeyHashFromAddress(to)}
 	tx := Transaction{nil, []TXInput{txin}, []TXOutput{txout}}
 	tx.ID = tx.CalcID()
@@ -65,6 +65,7 @@ func (tx *Transaction) PrintDetails() {
 	fmt.Printf("Transaction ID: %x\n", tx.ID)
 	if tx.IsCoinbase() {
 		fmt.Println("Coinbase Transaction")
+		fmt.Printf("%s\n", tx.Inputs[0].PubKey)
 	} else {
 		fmt.Println("Inputs:")
 		for _, in := range tx.Inputs {
