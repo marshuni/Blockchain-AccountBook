@@ -6,7 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 
-	"accountbook/pkg/wallet"
+	"accountbook/pkg/core/wallet"
 )
 
 // UTXO 结构

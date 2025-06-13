@@ -6,7 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 
-	"accountbook/pkg/tx"
+	"accountbook/pkg/core/tx"
 )
 
 // Merkle树节点定义
@@ -18,13 +18,13 @@ type MerkleNode struct {
 }
 
 // 从数据块构建Merkle树，返回根
-func CreateTree(datas []tx.Transaction) MerkleNode {
+func CreateTree(datas []*tx.Transaction) MerkleNode {
 	var nodes []MerkleNode
 	// 遍历所有数据块，创建叶节点
 	for _, data := range datas {
 		var newNode MerkleNode
 
-		newNode.Data = &data
+		newNode.Data = data
 		updateHash(&newNode)
 
 		nodes = append(nodes, newNode)
@@ -61,7 +61,7 @@ func PrintTree(now MerkleNode, layer int) {
 		fmt.Print("  ")
 	}
 	if now.Data != nil {
-		fmt.Printf("Data:\"%s\":%x\n", now.Data.ID, now.Hash)
+		fmt.Printf("交易ID:\"%x\"\n    哈希值:%x\n", now.Data.ID, now.Hash)
 		return
 	}
 
@@ -98,14 +98,6 @@ func updateHash(node *MerkleNode) {
 	}
 	copy(node.Hash[:], hash.Sum(nil))
 }
-
-// func main() {
-// 	datas := [5]DataBlock{{"ha"}, {"hello"}, {"world"}, {"aaa"}, {"hello~"}}
-// 	root := create_tree(datas[:])
-// 	fmt.Printf("Root Hash of Merkle Tree:%x\n", root.hash)
-
-// 	print_tree(root, 0)
-// }
 
 /*
 参考链接：
