@@ -1,49 +1,49 @@
 package main
 
 import (
+	"bytes"
 	"crypto/sha256"
+	"encoding/gob"
 	"fmt"
-)
 
-type BlockData struct {
-	content string
-}
+	"accountbook/pkg/tx"
+)
 
 // Merkle树节点定义
 type MerkleNode struct {
-	data        *BlockData
-	hash        [32]byte
-	left_child  *MerkleNode
-	right_child *MerkleNode
+	Data       *tx.Transaction
+	Hash       [32]byte
+	LeftChild  *MerkleNode
+	RightChild *MerkleNode
 }
 
 // 从数据块构建Merkle树，返回根
-func Create_tree(datas []BlockData) MerkleNode {
+func CreateTree(datas []tx.Transaction) MerkleNode {
 	var nodes []MerkleNode
 	// 遍历所有数据块，创建叶节点
 	for _, data := range datas {
 		var newNode MerkleNode
 
-		newNode.data = &data
-		update_hash(&newNode)
+		newNode.Data = &data
+		updateHash(&newNode)
 
 		nodes = append(nodes, newNode)
 	}
-	return build_tree(nodes)[0]
+	return buildTree(nodes)[0]
 }
 
 // 递归逐层构建Merkle树
-func build_tree(sons []MerkleNode) []MerkleNode {
+func buildTree(sons []MerkleNode) []MerkleNode {
 	var fathers []MerkleNode
 	// 相邻节点配对，创建它们的父节点
 	for i := 0; i < len(sons); i += 2 {
 		var newNode MerkleNode
 
-		newNode.left_child = &sons[i]
+		newNode.LeftChild = &sons[i]
 		if i+1 < len(sons) {
-			newNode.right_child = &sons[i+1]
+			newNode.RightChild = &sons[i+1]
 		}
-		update_hash(&newNode)
+		updateHash(&newNode)
 
 		fathers = append(fathers, newNode)
 	}
@@ -51,45 +51,52 @@ func build_tree(sons []MerkleNode) []MerkleNode {
 	if len(fathers) == 1 {
 		return fathers
 	} else {
-		return build_tree(fathers)
+		return buildTree(fathers)
 	}
 }
 
 // 递归打印各节点的哈希值
-func Print_tree(now MerkleNode, layer int) {
+func PrintTree(now MerkleNode, layer int) {
 	for range layer {
 		fmt.Print("  ")
 	}
-	if now.data != nil {
-		fmt.Printf("Data:\"%s\":%x\n", now.data.content, now.hash)
+	if now.Data != nil {
+		fmt.Printf("Data:\"%s\":%x\n", now.Data.ID, now.Hash)
 		return
 	}
 
-	fmt.Printf("Node:%x\n", now.hash)
-	if now.left_child != nil {
-		Print_tree(*now.left_child, layer+1)
+	fmt.Printf("Node:%x\n", now.Hash)
+	if now.LeftChild != nil {
+		PrintTree(*now.LeftChild, layer+1)
 	}
-	if now.right_child != nil {
-		Print_tree(*now.right_child, layer+1)
+	if now.RightChild != nil {
+		PrintTree(*now.RightChild, layer+1)
 	}
 }
 
 // 根据子节点信息，计算当前节点Hash
-func update_hash(node *MerkleNode) {
+func updateHash(node *MerkleNode) {
 	hash := sha256.New()
 
 	// 存在data，说明是叶节点
 	// 否则根据左右子节点的哈希计算
-	if node.data != nil {
-		// 若指向数据块，根据content属性计算哈希值
-		hash.Write([]byte(node.data.content))
+	if node.Data != nil {
+		// 若指向数据块，使用gob序列化并计算哈希值
+		var serializedData []byte
+		buffer := bytes.NewBuffer(serializedData)
+		encoder := gob.NewEncoder(buffer)
+		err := encoder.Encode(node.Data)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to serialize data: %v", err))
+		}
+		hash.Write(buffer.Bytes())
 	} else {
-		hash.Write(node.left_child.hash[:])
-		if node.right_child != nil {
-			hash.Write(node.right_child.hash[:])
+		hash.Write(node.LeftChild.Hash[:])
+		if node.RightChild != nil {
+			hash.Write(node.RightChild.Hash[:])
 		}
 	}
-	copy(node.hash[:], hash.Sum(nil))
+	copy(node.Hash[:], hash.Sum(nil))
 }
 
 // func main() {
