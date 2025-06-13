@@ -2,7 +2,6 @@ package blockchain
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"time"
 
@@ -63,30 +62,6 @@ func (bc *Blockchain) AddBlock(p *TxPool, minerAddress string) {
 
 	// 将新挖掘的区块添加到区块链
 	bc.Blocks = append(bc.Blocks, &newBlock)
-}
-
-// 区块链迭代器
-type BlockchainIterator struct {
-	currentIndex int
-	blockchain   *Blockchain
-}
-
-// 获取下一个区块
-func (it *BlockchainIterator) Next() (*pow.Block, error) {
-	if it.currentIndex < 0 {
-		return nil, errors.New("no more blocks")
-	}
-	block := it.blockchain.Blocks[it.currentIndex]
-	it.currentIndex--
-	return block, nil
-}
-
-// 迭代器，可获取并遍历链上所有交易
-func (bc *Blockchain) Iterator() *BlockchainIterator {
-	return &BlockchainIterator{
-		currentIndex: len(bc.Blocks) - 1,
-		blockchain:   bc,
-	}
 }
 
 // 寻找特定ID的交易
@@ -155,24 +130,3 @@ func (bc *Blockchain) Print() {
 	}
 
 }
-
-// Gob序列化与反序列化
-// func (bc *Blockchain) Serialize() ([]byte, error) {
-// 	var result bytes.Buffer
-// 	encoder := gob.NewEncoder(&result)
-// 	err := encoder.Encode(bc)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return result.Bytes(), nil
-// }
-
-// func DeserializeBlockchain(data []byte) (*Blockchain, error) {
-// 	var bc Blockchain
-// 	decoder := gob.NewDecoder(bytes.NewReader(data))
-// 	err := decoder.Decode(&bc)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &bc, nil
-// }
