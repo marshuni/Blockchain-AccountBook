@@ -2,17 +2,18 @@
 package main
 
 import (
-	"accountbook/pkg/blockchain"
-	"accountbook/pkg/core/tx"
-	"accountbook/pkg/core/wallet"
-	"accountbook/pkg/utxo"
 	"fmt"
 	"testing"
+
+	"github.com/marshuni/Blockchain-AccountBook/pkg/blockchain"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/tx"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/wallet"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/utxo"
 )
 
 func TestUTXOFlow(t *testing.T) {
 	// 1. 初始化区块链和UTXO集
-	chain := blockchain.NewBlockchain()
+	chain := blockchain.NewBlockchain("data.db")
 	utxoSet := utxo.UTXOSet{Blockchain: chain}
 
 	// 2. 创建两个钱包A、B

@@ -6,7 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 
-	"accountbook/pkg/core/tx"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/tx"
 )
 
 // Merkle树节点定义

@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"accountbook/pkg/core/pow"
-	"accountbook/pkg/core/tx"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/pow"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/tx"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/db" // 新增
 )
 
 // 区块链
 type Blockchain struct {
 	Blocks []*pow.Block
+	db     *db.DB // 新增
 }
 
 // 交易池
@@ -20,18 +22,52 @@ type TxPool struct {
 }
 
 // 初始化区块链，含创建创世块
-func NewBlockchain() *Blockchain {
-	genesisBlock := &pow.Block{
-		Version:      2,
-		PreviousHash: [32]byte{},
-		MerkleRoot:   [32]byte{},
-		Timestamp:    uint32(time.Now().Unix()),
-		Bits:         [4]byte{0x1f, 0x00, 0xff, 0xff},
-		Nounce:       0,
+func NewBlockchain(dbPath string) *Blockchain {
+	database, err := db.OpenDB(dbPath)
+	if err != nil {
+		panic(err)
 	}
-	return &Blockchain{
-		Blocks: []*pow.Block{genesisBlock},
+	bc := &Blockchain{
+		Blocks: []*pow.Block{},
+		db:     database,
 	}
+	// 尝试从数据库加载区块
+	lastHash, err := database.GetLastHash()
+	if err != nil && err.Error() != "last hash not found" {
+		panic(err)
+	}
+	if lastHash != nil {
+		// 从数据库加载所有区块
+		hash := lastHash
+		for hash != nil {
+			var block pow.Block
+			err := database.GetBlock(hash, &block)
+			if err != nil {
+				break
+			}
+			bc.Blocks = append([]*pow.Block{&block}, bc.Blocks...)
+			hash = block.PreviousHash[:]
+			if bytes.Equal(hash, make([]byte, 32)) {
+				break
+			}
+		}
+	} else {
+		// 数据库为空，创建创世块
+		genesisBlock := &pow.Block{
+			Version:      2,
+			PreviousHash: [32]byte{},
+			MerkleRoot:   [32]byte{},
+			Timestamp:    uint32(time.Now().Unix()),
+			Bits:         [4]byte{0x1f, 0x00, 0xff, 0xff},
+			Nounce:       0,
+		}
+		bc.Blocks = []*pow.Block{genesisBlock}
+		// 存储创世块
+		hash := genesisBlock.CalculateHash()
+		_ = database.PutBlock(hash[:], genesisBlock)
+		_ = database.UpdateLastHash(hash[:])
+	}
+	return bc
 }
 
 // 打包交易池中的所有区块，挖掘新的区块并添加到链上（自行添加一个Coinbase）
@@ -62,6 +98,10 @@ func (bc *Blockchain) AddBlock(p *TxPool, minerAddress string) {
 
 	// 将新挖掘的区块添加到区块链
 	bc.Blocks = append(bc.Blocks, &newBlock)
+	// 存储到数据库
+	hash := newBlock.CalculateHash()
+	_ = bc.db.PutBlock(hash[:], &newBlock)
+	_ = bc.db.UpdateLastHash(hash[:])
 }
 
 // 寻找特定ID的交易

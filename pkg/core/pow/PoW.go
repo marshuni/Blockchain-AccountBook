@@ -7,8 +7,8 @@ import (
 	"math/big"
 	"time"
 
-	"accountbook/pkg/core/merkle"
-	"accountbook/pkg/core/tx"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/merkle"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/tx"
 )
 
 type Block struct {

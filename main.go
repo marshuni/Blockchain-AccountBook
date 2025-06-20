@@ -1,12 +1,13 @@
 package main
 
 import (
-	"accountbook/pkg/blockchain"
-	"accountbook/pkg/core/merkle"
-	"accountbook/pkg/core/pow"
-	"accountbook/pkg/core/tx"
-	"accountbook/pkg/core/wallet"
 	"fmt"
+
+	"github.com/marshuni/Blockchain-AccountBook/pkg/blockchain"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/merkle"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/pow"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/tx"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/wallet"
 )
 
 func main() {
@@ -40,7 +41,7 @@ func main() {
 	fmt.Printf("Block mined: %x\n", myBlock.MineBlock())
 
 	// 区块链
-	myChain := blockchain.NewBlockchain()
+	myChain := blockchain.NewBlockchain("./database/data.db")
 	myPool := blockchain.TxPool{}
 
 	myPool.AddTx(myCoinbase)

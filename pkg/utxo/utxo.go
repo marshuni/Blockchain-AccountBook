@@ -1,15 +1,16 @@
 package utxo
 
 import (
-	"accountbook/pkg/blockchain"
-	"accountbook/pkg/core/tx"
-	"accountbook/pkg/core/wallet"
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
 	"slices"
+
+	"github.com/marshuni/Blockchain-AccountBook/pkg/blockchain"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/tx"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/wallet"
 )
 
 // UTXO集

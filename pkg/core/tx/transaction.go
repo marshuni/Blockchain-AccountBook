@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"accountbook/pkg/core/wallet"
+	"github.com/marshuni/Blockchain-AccountBook/pkg/core/wallet"
 )
 
 // UTXO 结构
