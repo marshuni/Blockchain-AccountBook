@@ -157,7 +157,7 @@ func (bc *Blockchain) Print() {
 				fmt.Printf("        Vin #%d:\n", k)
 				fmt.Printf("          Txid: %x\n", vin.Txid)
 				fmt.Printf("          Vout: %d\n", vin.Vout)
-				fmt.Printf("          ScriptSig: %s\n", vin.Signature)
+				fmt.Printf("          ScriptSig: %x\n", vin.Signature)
 			}
 			fmt.Printf("      Vout:\n")
 			for k, vout := range tx.Outputs {

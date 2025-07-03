@@ -64,22 +64,22 @@ func (tx *Transaction) IsCoinbase() bool {
 
 // 输出交易细节
 func (tx *Transaction) PrintDetails() {
-	fmt.Printf("Transaction ID: %x\n", tx.ID)
+	fmt.Printf("[Transaction ID: %x]\n", tx.ID)
 	if tx.IsCoinbase() {
-		fmt.Println("Coinbase Transaction")
-		fmt.Printf("%s\n", tx.Inputs[0].PubKey)
+		fmt.Println("  Coinbase Transaction")
+		fmt.Printf("  %s\n", tx.Inputs[0].PubKey)
 	} else {
-		fmt.Println("Inputs:")
+		fmt.Println("  Inputs:")
 		for _, in := range tx.Inputs {
-			fmt.Printf("  Txid: %x\n", in.Txid)
-			fmt.Printf("  Vout: %d\n", in.Vout)
-			fmt.Printf("  PubKey: %x\n", in.PubKey)
+			fmt.Printf("    Txid: %x\n", in.Txid)
+			fmt.Printf("    Vout: %d\n", in.Vout)
+			fmt.Printf("    PubKey: %x\n", in.PubKey)
 		}
 	}
-	fmt.Println("Outputs:")
+	fmt.Println("  Outputs:")
 	for _, out := range tx.Outputs {
-		fmt.Printf("  Value: %d\n", out.Value)
-		fmt.Printf("  PubKeyHash: %x\n", out.PubKeyHash)
+		fmt.Printf("    Value: %d\n", out.Value)
+		fmt.Printf("    PubKeyHash: %x\n", out.PubKeyHash)
 	}
 }
 
